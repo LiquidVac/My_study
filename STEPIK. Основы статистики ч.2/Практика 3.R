@@ -15,6 +15,7 @@ smart_hclust <-  function(test_data, cluster_number){
 
 test_data <- read.csv("https://stepic.org/media/attachments/course/524/test_data_hclust.csv")
 str(test_data)
+smart_hclust(test_data, 3)
 str(smart_hclust(test_data, 3))
 
 
@@ -87,8 +88,8 @@ get_pca2 <- function(data){
 }
 
 data(swiss)
-result  <- get_pca2(swiss)
-str(result)
+get_pca2(swiss)
+
 
 
 # Напишите функцию is_multicol, которая получает на вход dataframe 
