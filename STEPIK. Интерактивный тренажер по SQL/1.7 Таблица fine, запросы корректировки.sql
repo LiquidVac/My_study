@@ -1,3 +1,5 @@
+-- use stepik
+
 /* В таблицу  traffic_violation занесены нарушения ПДД и соответствующие штрафы (в рублях). */
 CREATE TABLE traffic_violation (
        violation_id INT PRIMARY KEY AUTO_INCREMENT,
@@ -39,7 +41,8 @@ VALUES ('Баранов П.Е.', 'Р523ВТ', 'Превышение скорос
 SELECT * FROM fine;
 
 /* Задание 3
-Занести в таблицу fine суммы штрафов, которые должен оплатить водитель, в соответствии с данными из таблицы traffic_violation. 
+Занести в таблицу fine суммы штрафов, которые должен оплатить водитель, 
+в соответствии с данными из таблицы traffic_violation. 
 При этом суммы заносить только в пустые поля столбца  sum_fine. */
 UPDATE fine f, traffic_violation tv
    SET f.sum_fine = tv.sum_fine
@@ -71,3 +74,52 @@ UPDATE fine,
        (fine.date_payment IS NULL);
 
  SELECT * FROM fine;
+
+ /* Задание 6
+Водители оплачивают свои штрафы. В таблице payment занесены даты их оплаты: */
+CREATE TABLE payment (
+       payment_id     INT PRIMARY KEY AUTO_INCREMENT,
+       name           VARCHAR(30),
+       number_plate   VARCHAR(6),
+       violation      VARCHAR(50),
+       date_violation DATE,
+       date_payment   DATE);
+       
+INSERT INTO payment(name, number_plate, violation, date_violation, date_payment)
+VALUES ('Яковлев Г.Р.', 'М701АА', 'Превышение скорости(от 20 до 40)', '2020-01-12', '2020-01-22'),
+       ('Баранов П.Е.', 'Р523ВТ', 'Превышение скорости(от 40 до 60)', '2020-02-14', '2020-03-06'),
+       ('Яковлев Г.Р.', 'Т330ТТ', 'Проезд на запрещающий сигнал', '2020-03-03', '2020-03-23');
+SELECT * FROM payment;
+
+/* В таблицу fine занести дату оплаты соответствующего штрафа из таблицы payment; 
+   уменьшить начисленный штраф в таблице fine в два раза 
+   (только для тех штрафов, информация о которых занесена в таблицу payment), 
+   если оплата произведена не позднее 20 дней со дня нарушения. */
+
+UPDATE fine f, payment p
+   SET f.date_payment = p.date_payment,
+	   f.sum_fine = IF(DATEDIFF(p.date_payment, f.date_violation) <= 20, sum_fine / 2, sum_fine)
+WHERE (f.name, f.number_plate, f.violation) = (p.name, p.number_plate, p.violation) 
+  AND (f.date_payment IS NULL);
+       
+SELECT * FROM fine;
+
+/* Задание 7
+Создать новую таблицу back_payment, куда внести информацию о неоплаченных штрафах (Фамилию и инициалы водителя, номер машины, нарушение, сумму штрафа  и  дату нарушения) из таблицы fine. */
+
+CREATE TABLE back_payment AS
+     (
+       SELECT name, number_plate, violation, sum_fine, date_violation
+         FROM fine AS f
+        WHERE f.date_payment IS NULL
+      );
+      
+SELECT * FROM back_payment;
+
+/* Задание 8
+Удалить из таблицы fine информацию о нарушениях, совершенных раньше 1 февраля 2020 года. */
+
+DELETE from fine
+ WHERE date_violation < '2020-02-01';
+
+SELECT * FROM fine;
